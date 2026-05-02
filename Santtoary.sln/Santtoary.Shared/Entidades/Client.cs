@@ -1,26 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Santtooary.Shared.Entidades
+namespace Santtoary.Shared.Entidades
 {
-    public class Cliente
+    public class Client
     {
         public int Id { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio")]
         [MaxLength(100)]
-        public string Nombre { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         [Required(ErrorMessage = "El documento es obligatorio")]
-        public string Documento { get; set; } = null!;
+        public string Document { get; set; } = null!;
 
-        public string? Telefono { get; set; }
+        public string? Phone { get; set; }
 
         [EmailAddress(ErrorMessage = "Email inválido")]
         public string? Email { get; set; }
 
-        public string? NotasMedicas { get; set; }
+        public string? MedicalNotes { get; set; }
 
-        public ICollection<Cita>? Citas { get; set; }
+        public ICollection<Appointment>? Appointments { get; set; }
     }
 }
