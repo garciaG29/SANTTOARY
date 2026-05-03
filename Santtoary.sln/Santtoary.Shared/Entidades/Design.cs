@@ -1,5 +1,4 @@
-﻿using Santtooary.Shared.Entidades;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Santtoary.Shared.Entidades
 {

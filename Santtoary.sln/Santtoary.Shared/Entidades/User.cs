@@ -2,9 +2,9 @@
 
 namespace Santtoary.Shared.Entidades
 {
-    public class User : IdentityUser // Hereda de IdentityUser para incluir propiedades de autenticación y autorización
+    public class User : IdentityUser
     {
-        // Rol puede ser 'Administrador' o 'Usuario'
+        // Tu amigo dejó esta propiedad en español en su SeedDb ("Rol" = "Admin")
         public string Rol { get; set; } = null!;
     }
 }
