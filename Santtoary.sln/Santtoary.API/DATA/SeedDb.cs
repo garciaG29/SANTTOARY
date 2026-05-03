@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Santtoary.Shared.Entidades;
-using Santtooary.Shared.Entidades;
+
 
 namespace Santtoary.API.DATA
 {
