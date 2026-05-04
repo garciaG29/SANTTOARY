@@ -38,11 +38,16 @@ namespace Santtoary.API.Controllers
             return Ok(user);
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete(int id)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(string id)
         {
+            
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if (user == null) return NotFound();
+
+            if (user == null)
+            {
+                return NotFound();
+            }
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
