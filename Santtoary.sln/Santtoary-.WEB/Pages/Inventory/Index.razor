@@ -1,0 +1,86 @@
+﻿@page "/inventario"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Inventario</h3>
+<a href="/inventario/crear" class="btn btn-primary mb-3">+ Nuevo Insumo</a>
+
+@if (lista == null)
+{
+    <p>Cargando...</p>
+}
+else if (!lista.Any())
+{
+    <p>No hay insumos registrados.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Cantidad</th>
+                <th>Stock Mínimo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in lista)
+            {
+                <tr class="@(item.Quantity <= item.MinimumStockLevel ? "table-danger" : "")">
+                    <td>@item.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.MinimumStockLevel</td>
+                    <td>
+                        @if (item.Quantity <= item.MinimumStockLevel)
+                        {
+                            <span class="badge bg-danger">Stock bajo</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">OK</span>
+                        }
+                    </td>
+                    <td>
+                        <a href="/inventario/editar/@item.Id" class="btn btn-warning btn-sm">Editar</a>
+                        <button class="btn btn-danger btn-sm" @onclick="() => Eliminar(item.Id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (mensaje != null)
+{
+    <div class="alert alert-info">@mensaje</div>
+}
+
+@code {
+    private List<InventoryItem>? lista;
+    private string? mensaje;
+
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Cargar();
+    }
+
+    async Task Cargar()
+    {
+        lista = await Http.GetFromJsonAsync<List<InventoryItem>>("api/inventoryitems");
+    }
+
+    async Task Eliminar(int id)
+    {
+        var confirm = await JS.InvokeAsync<bool>("confirm", "¿Seguro que deseas eliminar este insumo?");
+        if (confirm)
+        {
+            await Http.DeleteAsync($"api/inventoryitems/{id}");
+            mensaje = "Insumo eliminado correctamente.";
+            await Cargar();
+        }
+    }
+}

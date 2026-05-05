@@ -1,0 +1,92 @@
+﻿@page "/citas/editar/{Id:int}"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Editar Cita</h3>
+
+@if (cita == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <EditForm Model="cita" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Fecha *</label>
+            <InputDate class="form-control" @bind-Value="cita.Date" />
+            <ValidationMessage For="@(() => cita.Date)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Horas estimadas *</label>
+            <InputNumber class="form-control" @bind-Value="cita.EstimatedHours" />
+            <ValidationMessage For="@(() => cita.EstimatedHours)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Precio total *</label>
+            <InputNumber class="form-control" @bind-Value="cita.TotalPrice" />
+            <ValidationMessage For="@(() => cita.TotalPrice)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Estado *</label>
+            <InputSelect class="form-control" @bind-Value="cita.Status">
+                <option value="">-- Seleccione un estado --</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Confirmada">Confirmada</option>
+                <option value="Completada">Completada</option>
+                <option value="Cancelada">Cancelada</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => cita.Status)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Cliente *</label>
+            <InputSelect class="form-control" @bind-Value="cita.ClientId">
+                <option value="">-- Seleccione un cliente --</option>
+                @foreach (var cliente in clientes)
+                {
+                    <option value="@cliente.Id">@cliente.Name</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label>Artista *</label>
+            <InputSelect class="form-control" @bind-Value="cita.ArtistId">
+                <option value="">-- Seleccione un artista --</option>
+                @foreach (var artista in artistas)
+                {
+                    <option value="@artista.Id">@artista.Name</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button type="submit" class="btn btn-success">Guardar cambios</button>
+        <a href="/citas" class="btn btn-secondary ms-2">Cancelar</a>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Appointment? cita;
+    private List<Client> clientes = new();
+    private List<Artist> artistas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        cita = await Http.GetFromJsonAsync<Appointment>($"api/appointments/{Id}");
+        clientes = await Http.GetFromJsonAsync<List<Client>>("api/clients") ?? new();
+        artistas = await Http.GetFromJsonAsync<List<Artist>>("api/artists") ?? new();
+    }
+
+    async Task Guardar()
+    {
+        await Http.PutAsJsonAsync($"api/appointments/{Id}", cita);
+        Nav.NavigateTo("/citas");
+    }
+}

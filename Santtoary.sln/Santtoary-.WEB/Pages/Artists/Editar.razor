@@ -1,0 +1,54 @@
+﻿@page "/artistas/editar/{Id:int}"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Editar Artista</h3>
+
+@if (artista == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <EditForm Model="artista" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Nombre *</label>
+            <InputText class="form-control" @bind-Value="artista.Name" />
+            <ValidationMessage For="@(() => artista.Name)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Especialidad *</label>
+            <InputText class="form-control" @bind-Value="artista.Specialty" />
+            <ValidationMessage For="@(() => artista.Specialty)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Teléfono</label>
+            <InputText class="form-control" @bind-Value="artista.PhoneNumber" />
+            <ValidationMessage For="@(() => artista.PhoneNumber)" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Guardar cambios</button>
+        <a href="/artistas" class="btn btn-secondary ms-2">Cancelar</a>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Artist? artista;
+
+    protected override async Task OnInitializedAsync()
+    {
+        artista = await Http.GetFromJsonAsync<Artist>($"api/artists/{Id}");
+    }
+
+    async Task Guardar()
+    {
+        await Http.PutAsJsonAsync($"api/artists/{Id}", artista);
+        Nav.NavigateTo("/artistas");
+    }
+}

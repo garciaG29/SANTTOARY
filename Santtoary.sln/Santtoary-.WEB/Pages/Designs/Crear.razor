@@ -1,0 +1,57 @@
+﻿@page "/disenos/crear"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Nuevo Diseño</h3>
+
+<EditForm Model="diseno" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Título *</label>
+        <InputText class="form-control" @bind-Value="diseno.Title" />
+        <ValidationMessage For="@(() => diseno.Title)" />
+    </div>
+
+    <div class="mb-3">
+        <label>URL de imagen</label>
+        <InputText class="form-control" @bind-Value="diseno.ImageUrl" />
+    </div>
+
+    <div class="mb-3">
+        <label>Precio *</label>
+        <InputNumber class="form-control" @bind-Value="diseno.Price" />
+        <ValidationMessage For="@(() => diseno.Price)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Artista *</label>
+        <InputSelect class="form-control" @bind-Value="diseno.ArtistId">
+            <option value="">-- Seleccione un artista --</option>
+            @foreach (var artista in artistas)
+            {
+                <option value="@artista.Id">@artista.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="/disenos" class="btn btn-secondary ms-2">Cancelar</a>
+</EditForm>
+
+@code {
+    private Design diseno = new();
+    private List<Artist> artistas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        artistas = await Http.GetFromJsonAsync<List<Artist>>("api/artists") ?? new();
+    }
+
+    async Task Guardar()
+    {
+        await Http.PostAsJsonAsync("api/designs", diseno);
+        Nav.NavigateTo("/disenos");
+    }
+}

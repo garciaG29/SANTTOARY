@@ -1,0 +1,81 @@
+﻿@page "/citas"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Citas</h3>
+<a href="/citas/crear" class="btn btn-primary mb-3">+ Nueva Cita</a>
+
+@if (lista == null)
+{
+    <p>Cargando...</p>
+}
+else if (!lista.Any())
+{
+    <p>No hay citas registradas.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Horas estimadas</th>
+                <th>Precio total</th>
+                <th>Estado</th>
+                <th>Cliente</th>
+                <th>Artista</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in lista)
+            {
+                <tr>
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td>@item.EstimatedHours</td>
+                    <td>@item.TotalPrice.ToString("C")</td>
+                    <td>@item.Status</td>
+                    <td>@item.Client?.Name</td>
+                    <td>@item.Artist?.Name</td>
+                    <td>
+                        <a href="/citas/editar/@item.Id" class="btn btn-warning btn-sm">Editar</a>
+                        <button class="btn btn-danger btn-sm" @onclick="() => Eliminar(item.Id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (mensaje != null)
+{
+    <div class="alert alert-info">@mensaje</div>
+}
+
+@code {
+    private List<Appointment>? lista;
+    private string? mensaje;
+
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Cargar();
+    }
+
+    async Task Cargar()
+    {
+        lista = await Http.GetFromJsonAsync<List<Appointment>>("api/appointments");
+    }
+
+    async Task Eliminar(int id)
+    {
+        var confirm = await JS.InvokeAsync<bool>("confirm", "¿Seguro que deseas eliminar esta cita?");
+        if (confirm)
+        {
+            await Http.DeleteAsync($"api/appointments/{id}");
+            mensaje = "Cita eliminada correctamente.";
+            await Cargar();
+        }
+    }
+}

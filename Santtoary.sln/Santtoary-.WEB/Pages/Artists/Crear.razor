@@ -1,0 +1,41 @@
+﻿@page "/artistas/crear"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Nuevo Artista</h3>
+
+<EditForm Model="artista" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Nombre *</label>
+        <InputText class="form-control" @bind-Value="artista.Name" />
+        <ValidationMessage For="@(() => artista.Name)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Especialidad *</label>
+        <InputText class="form-control" @bind-Value="artista.Specialty" />
+        <ValidationMessage For="@(() => artista.Specialty)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Teléfono</label>
+        <InputText class="form-control" @bind-Value="artista.PhoneNumber" />
+        <ValidationMessage For="@(() => artista.PhoneNumber)" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="/artistas" class="btn btn-secondary ms-2">Cancelar</a>
+</EditForm>
+
+@code {
+    private Artist artista = new();
+
+    async Task Guardar()
+    {
+        await Http.PostAsJsonAsync("api/artists", artista);
+        Nav.NavigateTo("/artistas");
+    }
+}

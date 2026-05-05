@@ -1,0 +1,75 @@
+﻿@page "/disenos"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Diseños</h3>
+<a href="/disenos/crear" class="btn btn-primary mb-3">+ Nuevo Diseño</a>
+
+@if (lista == null)
+{
+    <p>Cargando...</p>
+}
+else if (!lista.Any())
+{
+    <p>No hay diseños registrados.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Precio</th>
+                <th>Artista</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in lista)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>@item.Artist?.Name</td>
+                    <td>
+                        <a href="/disenos/editar/@item.Id" class="btn btn-warning btn-sm">Editar</a>
+                        <button class="btn btn-danger btn-sm" @onclick="() => Eliminar(item.Id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (mensaje != null)
+{
+    <div class="alert alert-info">@mensaje</div>
+}
+
+@code {
+    private List<Design>? lista;
+    private string? mensaje;
+
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Cargar();
+    }
+
+    async Task Cargar()
+    {
+        lista = await Http.GetFromJsonAsync<List<Design>>("api/designs");
+    }
+
+    async Task Eliminar(int id)
+    {
+        var confirm = await JS.InvokeAsync<bool>("confirm", "¿Seguro que deseas eliminar este diseño?");
+        if (confirm)
+        {
+            await Http.DeleteAsync($"api/designs/{id}");
+            mensaje = "Diseño eliminado correctamente.";
+            await Cargar();
+        }
+    }
+}

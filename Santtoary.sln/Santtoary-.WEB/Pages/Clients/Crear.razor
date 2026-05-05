@@ -1,0 +1,51 @@
+﻿@page "/clientes/crear"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Nuevo Cliente</h3>
+
+<EditForm Model="cliente" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Nombre *</label>
+        <InputText class="form-control" @bind-Value="cliente.Name" />
+        <ValidationMessage For="@(() => cliente.Name)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Documento *</label>
+        <InputText class="form-control" @bind-Value="cliente.Document" />
+        <ValidationMessage For="@(() => cliente.Document)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Teléfono</label>
+        <InputText class="form-control" @bind-Value="cliente.Phone" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="cliente.Email" />
+        <ValidationMessage For="@(() => cliente.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Notas Médicas</label>
+        <InputTextArea class="form-control" @bind-Value="cliente.MedicalNotes" rows="3" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="/clientes" class="btn btn-secondary ms-2">Cancelar</a>
+</EditForm>
+
+@code {
+    private Client cliente = new();
+
+    async Task Guardar()
+    {
+        await Http.PostAsJsonAsync("api/clients", cliente);
+        Nav.NavigateTo("/clientes");
+    }
+}
