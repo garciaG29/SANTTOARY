@@ -1,94 +1,89 @@
 ﻿@page "/"
+@inject NavigationManager Nav
 
 <div class="home">
 
-    <!-- 🎠 CARRUSEL -->
-    <div class="carousel">
+    <!-- HERO -->
+    <div class="hero">
 
-        <div class="carousel-slide">
-            <img src="https://images.unsplash.com/photo-1542728928-1413d1894ed1"
-                 alt="Tattoo 1" />
-            <div class="carousel-text">
-                <h1>Santtoary</h1>
-                <p>Arte, tinta y expresión en Medellín</p>
-            </div>
-        </div>
+        <img src="logo.png"
+             alt="Barber Tattoo Studio" />
 
-        <div class="carousel-slide">
-            <img src="https://images.unsplash.com/photo-1520975922284-9c4f8b0c2f6d"
-                 alt="Tattoo 2" />
-            <div class="carousel-text">
-                <h1>Diseños únicos</h1>
-                <p>Hechos por artistas profesionales</p>
-            </div>
-        </div>
+        <div class="hero-overlay">
+            <h1>SANTTOARY</h1>
+            <p>Tattoo • Barber • Style • Medellín</p>
 
-        <div class="carousel-slide">
-            <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c"
-                 alt="Tattoo 3" />
-            <div class="carousel-text">
-                <h1>Medellín Ink Studio</h1>
-                <p>Tu piel, tu historia</p>
+            <div class="auth-buttons">
+
+                <button class="btn login" @onclick="GoLogin">
+                    Login
+                </button>
+
+                <button class="btn register" @onclick="GoRegister">
+                    Registro
+                </button>
+
             </div>
+
         </div>
 
     </div>
 
-    <!-- ✨ PRESENTACIÓN -->
+    <!-- ABOUT -->
     <section class="about">
-        <h2>Bienvenido a Santtoary</h2>
+        <h2>Estilo masculino, arte en la piel</h2>
         <p>
-            Somos un estudio de tatuajes ubicado en Medellín.
-            Nos especializamos en arte personalizado, realismo, blackwork y diseños creativos.
+            Santtoary es un estudio en Medellín especializado en tatuajes y barbería premium.
+            Un espacio donde el estilo, la tinta y la identidad se encuentran.
         </p>
     </section>
 
-    <!-- 🧑‍🎨 ARTISTAS -->
+    <!-- ARTISTS -->
     <section class="artists">
 
-        <h2>Artistas Destacados</h2>
+        <h2>Artistas & Barberos</h2>
 
         <div class="grid">
 
             <div class="card">
-                <img src="https://images.unsplash.com/photo-1600180758890-6b94519a8ba6" />
-                <h3>Valentina Ink</h3>
-                <p>Realismo & retratos</p>
-            </div>
-
-            <div class="card">
                 <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033" />
                 <h3>Diego Black</h3>
-                <p>Blackwork & geométrico</p>
+                <p>Blackwork / Barber fade</p>
             </div>
 
             <div class="card">
-                <img src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8" />
-                <h3>Laura Skins</h3>
-                <p>Fine line & minimalismo</p>
+                <img src="img1.png" />
+                <h3>Mike Steel</h3>
+                <p>Realismo / Cortes clásicos</p>
+            </div>
+
+            <div class="card">
+                <img src="img2.png" />
+                <h3>Jhon Ink</h3>
+                <p>Fine line / Barber moderno</p>
             </div>
 
         </div>
 
     </section>
 
-    <!-- 📍 UBICACIÓN -->
+    <!-- LOCATION -->
     <section class="location">
-        <h2>Estamos en Medellín</h2>
-        <p>Zona: El Poblado - Estudio privado con cita previa</p>
+        <h2>Medellín, Colombia</h2>
+        <p>El Poblado · Estudio privado · Solo con cita previa</p>
     </section>
 
-    <!-- 📱 FOOTER -->
+    <!-- FOOTER -->
     <footer class="footer">
 
         <h3>Santtoary</h3>
 
-        <p>Arte en la piel desde Medellín</p>
+        <p>Tattoo & Barber Studio</p>
 
         <div class="socials">
             <a href="#">Instagram</a>
             <a href="#">TikTok</a>
-            <a href="#">Facebook</a>
+            <a href="#">WhatsApp</a>
         </div>
 
         <p class="copy">© 2026 Santtoary. Todos los derechos reservados.</p>
@@ -97,39 +92,43 @@
 
 </div>
 
+@code {
+
+    private void GoLogin()
+    {
+        Nav.NavigateTo("/login");
+    }
+
+    private void GoRegister()
+    {
+        Nav.NavigateTo("/register");
+    }
+}
+
 <style>
 
     body {
         margin: 0;
-        font-family: Arial, sans-serif;
-        background: #0f172a;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #0a0f1c;
         color: white;
     }
 
-    .home {
-        width: 100%;
-    }
-
-    /* 🎠 CARRUSEL */
-    .carousel {
-        height: 90vh;
+    /* HERO */
+    .hero {
         position: relative;
+        height: 100vh;
         overflow: hidden;
     }
 
-    .carousel-slide {
-        position: relative;
-        height: 90vh;
-    }
-
-    .carousel-slide img {
+    .hero img {
         width: 100%;
-        height: 90vh;
+        height: 100vh;
         object-fit: cover;
-        filter: brightness(50%);
+        filter: grayscale(40%) brightness(35%);
     }
 
-    .carousel-text {
+    .hero-overlay {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -137,43 +136,82 @@
         text-align: center;
     }
 
-    .carousel-text h1 {
-        font-size: 60px;
+    .hero-overlay h1 {
+        font-size: 70px;
+        letter-spacing: 5px;
         margin: 0;
+        color: #e5e7eb;
     }
 
-    .carousel-text p {
-        font-size: 20px;
+    .hero-overlay p {
+        color: #94a3b8;
         margin-top: 10px;
+    }
+
+    /* BOTONES */
+    .auth-buttons {
+        margin-top: 25px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .btn {
+        padding: 14px 26px;
+        border-radius: 10px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .login {
+        background: #1e3a8a;
+        color: white;
+    }
+
+    .login:hover {
+        background: #1e40af;
+    }
+
+    .register {
+        background: #111827;
+        border: 1px solid #334155;
+        color: white;
+    }
+
+    .register:hover {
+        background: #1f2937;
     }
 
     /* ABOUT */
     .about {
         padding: 80px 20px;
         text-align: center;
-        background: #111827;
+        background: #0b1220;
     }
 
     .about h2 {
-        font-size: 36px;
+        font-size: 32px;
+        color: #e5e7eb;
     }
 
     .about p {
         max-width: 700px;
         margin: auto;
-        color: #cbd5e1;
+        color: #94a3b8;
     }
 
     /* ARTISTS */
     .artists {
         padding: 80px 20px;
         text-align: center;
-        background: #0f172a;
+        background: #0a0f1c;
     }
 
     .artists h2 {
-        font-size: 36px;
         margin-bottom: 40px;
+        color: #e5e7eb;
     }
 
     .grid {
@@ -184,25 +222,28 @@
     }
 
     .card {
-        background: #1e293b;
-        border-radius: 15px;
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 14px;
+        width: 260px;
         overflow: hidden;
-        width: 250px;
         transition: 0.3s;
     }
 
     .card:hover {
         transform: scale(1.05);
+        border-color: #1e3a8a;
     }
 
     .card img {
         width: 100%;
-        height: 250px;
+        height: 260px;
         object-fit: cover;
+        filter: grayscale(20%);
     }
 
     .card h3 {
-        margin: 10px 0 5px 0;
+        margin: 10px 0 5px;
     }
 
     .card p {
@@ -214,7 +255,7 @@
     .location {
         padding: 60px 20px;
         text-align: center;
-        background: #111827;
+        background: #0b1220;
     }
 
     /* FOOTER */
@@ -222,14 +263,7 @@
         padding: 40px 20px;
         text-align: center;
         background: #020617;
-    }
-
-    .footer h3 {
-        margin: 0;
-    }
-
-    .socials {
-        margin: 15px 0;
+        border-top: 1px solid #111827;
     }
 
     .socials a {
