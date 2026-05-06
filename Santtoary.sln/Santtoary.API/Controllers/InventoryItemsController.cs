@@ -30,12 +30,29 @@ namespace Santtoary.API.Controllers
             return Ok(inventoryItem);
         }
 
-        [HttpPut]
-        public async Task<ActionResult> Put(InventoryItem inventoryItem)
+        // CORREGIDO: Ahora busca en InventoryItems (con el nombre correcto)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult> Get(int id)
         {
-            _context.InventoryItems.Update(inventoryItem);
+            var item = await _context.InventoryItems.FindAsync(id);
+            if (item == null) return NotFound();
+            return Ok(item);
+        }
+
+        // CORREGIDO: Ahora recibe un InventoryItem (con el nombre correcto)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, InventoryItem inventoryItem)
+        {
+            if (id != inventoryItem.Id) return BadRequest("El ID no coincide.");
+
+            var itemExistente = await _context.InventoryItems.FindAsync(id);
+            if (itemExistente == null) return NotFound();
+
+            // Truco ninja aplicado a la entidad correcta
+            _context.Entry(itemExistente).CurrentValues.SetValues(inventoryItem);
+
             await _context.SaveChangesAsync();
-            return Ok(inventoryItem);
+            return Ok();
         }
 
         [HttpDelete("{id:int}")]

@@ -33,12 +33,32 @@ namespace Santtoary.API.Controllers
         }
 
         // 3. PUT: Actualizar datos de un cliente
-        [HttpPut]
-        public async Task<ActionResult> Put(Client client)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult> Get(int id)
         {
-            _context.Clients.Update(client);
-            await _context.SaveChangesAsync();
+            var client = await _context.Clients.FindAsync(id);
+            if (client == null) return NotFound();
             return Ok(client);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, Client client)
+        {
+            if (id != client.Id) return BadRequest("El ID no coincide.");
+
+            var clienteExistente = await _context.Clients.FindAsync(id);
+            if (clienteExistente == null) return NotFound();
+
+            // Actualizamos campo por campo
+            clienteExistente.Name = client.Name;
+            clienteExistente.Phone = client.Phone;
+            clienteExistente.Email = client.Email;
+            clienteExistente.MedicalNotes = client.MedicalNotes;
+            clienteExistente.Document = client.Document;
+
+            _context.Clients.Update(clienteExistente);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // 4. DELETE: Borrar un cliente por ID

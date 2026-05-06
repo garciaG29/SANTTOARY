@@ -16,11 +16,28 @@ namespace Santtoary.API.Controllers
             _context = context;
         }
 
-        // 1. GET: Trae todas las citas agendadas
+        // 1. ESTE GET ES PARA LA TABLA (Trae la lista con los nombres cruzados)
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            return Ok(await _context.Appointments.ToListAsync());
+            return Ok(await _context.Appointments
+                .Include(x => x.Client)
+                .Include(x => x.Artist)
+                .ToListAsync());
+        }
+
+        // 2. ESTE GET ES PARA EL BOTÓN EDITAR (Busca una sola cita por su ID)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult> Get(int id)
+        {
+            var appointment = await _context.Appointments.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (appointment == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(appointment);
         }
 
         // 2. POST: Agenda una nueva cita
@@ -33,14 +50,36 @@ namespace Santtoary.API.Controllers
         }
 
         // 3. PUT: Actualiza los datos de una cita (ej. cambiar fecha o estado)
-        [HttpPut]
-        public async Task<ActionResult> Put(Appointment appointment)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, Appointment appointment)
         {
-            _context.Appointments.Update(appointment);
-            await _context.SaveChangesAsync();
-            return Ok(appointment);
-        }
+            // 1. Verificamos que el ID de la URL sea el mismo del objeto
+            if (id != appointment.Id)
+            {
+                return BadRequest("El ID no coincide.");
+            }
 
+            // 2. Buscamos la cita original en la base de datos
+            var citaExistente = await _context.Appointments.FindAsync(id);
+            if (citaExistente == null)
+            {
+                return NotFound();
+            }
+
+            // 3. Le pasamos los datos nuevos manualmente (a prueba de fallos)
+            citaExistente.Date = appointment.Date;
+            citaExistente.EstimatedHours = appointment.EstimatedHours;
+            citaExistente.TotalPrice = appointment.TotalPrice;
+            citaExistente.Status = appointment.Status;
+            citaExistente.ClientId = appointment.ClientId;
+            citaExistente.ArtistId = appointment.ArtistId;
+
+            // 4. Guardamos los cambios
+            _context.Appointments.Update(citaExistente);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
         // 4. DELETE: Cancela/Borra una cita por su ID
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)

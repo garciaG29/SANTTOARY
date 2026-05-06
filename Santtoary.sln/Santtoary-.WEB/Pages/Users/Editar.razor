@@ -1,0 +1,51 @@
+﻿@page "/users/editar/{id}"
+@using Santtoary.Shared.Entidades
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Editar Usuario</h3>
+
+@if (user == null)
+{
+    <p>Cargando datos...</p>
+}
+else
+{
+    <EditForm Model="user" OnValidSubmit="Actualizar">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label>Nombre de Usuario</label>
+            <InputText class="form-control" @bind-Value="user.UserName" />
+        </div>
+
+        <div class="mb-3">
+            <label>Email</label>
+            <InputText class="form-control" @bind-Value="user.Email" />
+        </div>
+
+        <div class="mb-3">
+            <label>Rol</label>
+            <InputText class="form-control" @bind-Value="user.Rol" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Guardar Cambios</button>
+        <a href="/users" class="btn btn-secondary ms-2">Cancelar</a>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public string id { get; set; } = null!;
+    private User? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await Http.GetFromJsonAsync<User>($"api/users/{id}");
+    }
+
+    async Task Actualizar()
+    {
+        var response = await Http.PutAsJsonAsync($"api/users/{id}", user);
+        if (response.IsSuccessStatusCode) Nav.NavigateTo("/users");
+    }
+}
