@@ -20,7 +20,8 @@ namespace Santtoary.API.Controllers
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            return Ok(await _context.Designs.ToListAsync());
+            // El .Include(x => x.Artist) es el secreto para que el nombre aparezca
+            return Ok(await _context.Designs.Include(x => x.Artist).ToListAsync());
         }
 
         // 2. POST: Subir un diseño nuevo al portafolio
@@ -33,12 +34,27 @@ namespace Santtoary.API.Controllers
         }
 
         // 3. PUT: Editar información de un diseño (ej. cambiar el precio o la descripción)
-        [HttpPut]
-        public async Task<ActionResult> Put(Design design)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult> Get(int id)
         {
-            _context.Designs.Update(design);
-            await _context.SaveChangesAsync();
+            var design = await _context.Designs.FindAsync(id);
+            if (design == null) return NotFound();
             return Ok(design);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, Design design)
+        {
+            if (id != design.Id) return BadRequest("El ID no coincide.");
+
+            var designExistente = await _context.Designs.FindAsync(id);
+            if (designExistente == null) return NotFound();
+
+            // El truco ninja: Copia todos los datos del formulario a la base de datos automáticamente
+            _context.Entry(designExistente).CurrentValues.SetValues(design);
+
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // 4. DELETE: Eliminar un diseño del catálogo

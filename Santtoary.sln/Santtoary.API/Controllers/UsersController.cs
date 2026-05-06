@@ -16,12 +16,26 @@ namespace Santtoary.API.Controllers
             _context = context;
         }
 
+        // Obtener todos los usuarios para la tabla principal
         [HttpGet]
         public async Task<ActionResult> Get()
         {
             return Ok(await _context.Users.ToListAsync());
         }
 
+        // IMPORTANTE: Obtener un usuario por ID (necesario para EDITAR)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> Get(string id)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
+        // Crear un nuevo usuario desde el panel
         [HttpPost]
         public async Task<ActionResult> Post(User user)
         {
@@ -30,18 +44,40 @@ namespace Santtoary.API.Controllers
             return Ok(user);
         }
 
-        [HttpPut]
-        public async Task<ActionResult> Put(User user)
+        // Actualizar un usuario existente
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Put(string id, User user)
         {
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
-            return Ok(user);
+            if (id != user.Id)
+            {
+                return BadRequest("El ID no coincide.");
+            }
+
+            // Usamos Entry para marcar solo los campos modificados y evitar conflictos de rastreo
+            _context.Entry(user).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(user);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _context.Users.AnyAsync(e => e.Id == id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
 
+        // Eliminar un usuario
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(string id)
         {
-            
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
 
             if (user == null)

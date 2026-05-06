@@ -33,12 +33,30 @@ namespace Santtoary.API.Controllers
         }
 
         // 3. PUT: Actualiza los datos de un artista que ya existe
-        [HttpPut]
-        public async Task<ActionResult> Put(Artist artist)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult> Get(int id)
         {
-            _context.Artists.Update(artist);
-            await _context.SaveChangesAsync();
+            var artist = await _context.Artists.FindAsync(id);
+            if (artist == null) return NotFound();
             return Ok(artist);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, Artist artist)
+        {
+            if (id != artist.Id) return BadRequest("El ID no coincide.");
+
+            var artistaExistente = await _context.Artists.FindAsync(id);
+            if (artistaExistente == null) return NotFound();
+
+            // Actualizamos campo por campo
+            artistaExistente.Name = artist.Name;
+            artistaExistente.Specialty = artist.Specialty;
+            artistaExistente.PhoneNumber = artist.PhoneNumber;
+
+            _context.Artists.Update(artistaExistente);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // 4. DELETE: Borra un artista por su ID

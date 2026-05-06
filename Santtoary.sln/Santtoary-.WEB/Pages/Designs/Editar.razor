@@ -1,4 +1,5 @@
 ﻿@page "/disenos/editar/{Id:int}"
+@using Santtoary.Shared.Entidades
 @inject HttpClient Http
 @inject NavigationManager Nav
 
@@ -6,7 +7,7 @@
 
 @if (diseno == null)
 {
-    <p>Cargando...</p>
+    <p><em>Cargando datos del diseño...</em></p>
 }
 else
 {
@@ -22,7 +23,13 @@ else
 
         <div class="mb-3">
             <label>URL de imagen</label>
-            <InputText class="form-control" @bind-Value="diseno.ImageUrl" />
+            <InputText class="form-control" @bind-Value="diseno.ImageUrl" placeholder="Pega el link de la foto aquí..." />
+            @if (!string.IsNullOrEmpty(diseno.ImageUrl))
+            {
+                <div class="mt-2">
+                    <img src="@diseno.ImageUrl" style="max-width: 200px; border-radius: 10px;" alt="Previsualización" />
+                </div>
+            }
         </div>
 
         <div class="mb-3">
@@ -32,14 +39,15 @@ else
         </div>
 
         <div class="mb-3">
-            <label>Artista *</label>
+            <label>Artista responsable *</label>
             <InputSelect class="form-control" @bind-Value="diseno.ArtistId">
-                <option value="">-- Seleccione un artista --</option>
+                <option value="0">-- Seleccione un artista --</option>
                 @foreach (var artista in artistas)
                 {
                     <option value="@artista.Id">@artista.Name</option>
                 }
             </InputSelect>
+            <ValidationMessage For="@(() => diseno.ArtistId)" />
         </div>
 
         <button type="submit" class="btn btn-success">Guardar cambios</button>
@@ -54,13 +62,17 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        // Cargamos el diseño y la lista de artistas para el desplegable
         diseno = await Http.GetFromJsonAsync<Design>($"api/designs/{Id}");
         artistas = await Http.GetFromJsonAsync<List<Artist>>("api/artists") ?? new();
     }
 
     async Task Guardar()
     {
-        await Http.PutAsJsonAsync($"api/designs/{Id}", diseno);
-        Nav.NavigateTo("/disenos");
+        var response = await Http.PutAsJsonAsync($"api/designs/{Id}", diseno);
+        if (response.IsSuccessStatusCode)
+        {
+            Nav.NavigateTo("/disenos");
+        }
     }
 }

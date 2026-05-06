@@ -1,8 +1,9 @@
 ﻿@page "/inventario/editar/{id:int}"
+@using Santtoary.Shared.Entidades
 @inject HttpClient Http
 @inject NavigationManager Nav
 
-<h3>Nuevo Insumo</h3>
+<h3>Editar Insumo</h3>
 
 <EditForm Model="item" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -25,16 +26,39 @@
         <InputNumber class="form-control" @bind-Value="item.MinimumStockLevel" />
     </div>
 
-    <button type="submit" class="btn btn-success">Guardar</button>
+    <button type="submit" class="btn btn-success">Guardar Cambios</button>
     <a href="/inventario" class="btn btn-secondary ms-2">Cancelar</a>
 </EditForm>
 
 @code {
+    // 1. LA PUERTA PARA RECIBIR EL ID DE LA URL
+    [Parameter]
+    public int id { get; set; }
+
     private InventoryItem item = new();
 
+    // 2. ESTE MÉTODO CARGA LOS DATOS APENAS ENTRAS A LA PÁGINA
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetFromJsonAsync<InventoryItem>($"api/inventoryitems/{id}");
+        if (response != null)
+        {
+            item = response;
+        }
+    }
+
+    // 3. CAMBIAMOS POST POR PUT PARA ACTUALIZAR
     async Task Guardar()
     {
-        await Http.PostAsJsonAsync("api/inventoryitems", item);
-        Nav.NavigateTo("/inventario");
+        var response = await Http.PutAsJsonAsync($"api/inventoryitems/{id}", item);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Nav.NavigateTo("/inventario");
+        }
+        else
+        {
+            
+        }
     }
 }

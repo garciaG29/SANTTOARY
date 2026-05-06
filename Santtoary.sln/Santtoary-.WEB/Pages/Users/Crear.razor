@@ -1,0 +1,46 @@
+﻿@page "/users/crear"
+@using Santtoary.Shared.Entidades
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Registrar Nuevo Usuario</h3>
+
+<div class="card p-4 shadow-sm">
+    <EditForm Model="user" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label>Nombre de Usuario</label>
+            <InputText class="form-control" @bind-Value="user.UserName" placeholder="Ej: KevinAdmin" />
+        </div>
+
+        <div class="mb-3">
+            <label>Correo Electrónico</label>
+            <InputText class="form-control" @bind-Value="user.Email" placeholder="admin@santtoary.com" />
+        </div>
+
+        <div class="mb-3">
+            <label>Rol</label>
+            <InputText class="form-control" @bind-Value="user.Rol" placeholder="Admin o Barbero" />
+        </div>
+
+        <div class="mb-3">
+            <label>Contraseña</label>
+            <InputText type="password" class="form-control" @bind-Value="user.PasswordHash" placeholder="********" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="/users" class="btn btn-secondary ms-2">Cancelar</a>
+    </EditForm>
+</div>
+
+@code {
+    private User user = new() { Rol = "Admin" }; // Valor por defecto
+
+    async Task Guardar()
+    {
+        // Importante: Identity usa PasswordHash para guardar la clave
+        var response = await Http.PostAsJsonAsync("api/users", user);
+        if (response.IsSuccessStatusCode) Nav.NavigateTo("/users");
+    }
+}
