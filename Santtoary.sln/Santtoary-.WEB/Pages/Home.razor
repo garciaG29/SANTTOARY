@@ -1,7 +1,246 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<div class="home">
 
-<h1>Hello, world!</h1>
+    <!-- 🎠 CARRUSEL -->
+    <div class="carousel">
 
-Welcome to your new app.
+        <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1542728928-1413d1894ed1"
+                 alt="Tattoo 1" />
+            <div class="carousel-text">
+                <h1>Santtoary</h1>
+                <p>Arte, tinta y expresión en Medellín</p>
+            </div>
+        </div>
+
+        <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1520975922284-9c4f8b0c2f6d"
+                 alt="Tattoo 2" />
+            <div class="carousel-text">
+                <h1>Diseños únicos</h1>
+                <p>Hechos por artistas profesionales</p>
+            </div>
+        </div>
+
+        <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c"
+                 alt="Tattoo 3" />
+            <div class="carousel-text">
+                <h1>Medellín Ink Studio</h1>
+                <p>Tu piel, tu historia</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ✨ PRESENTACIÓN -->
+    <section class="about">
+        <h2>Bienvenido a Santtoary</h2>
+        <p>
+            Somos un estudio de tatuajes ubicado en Medellín.
+            Nos especializamos en arte personalizado, realismo, blackwork y diseños creativos.
+        </p>
+    </section>
+
+    <!-- 🧑‍🎨 ARTISTAS -->
+    <section class="artists">
+
+        <h2>Artistas Destacados</h2>
+
+        <div class="grid">
+
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1600180758890-6b94519a8ba6" />
+                <h3>Valentina Ink</h3>
+                <p>Realismo & retratos</p>
+            </div>
+
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033" />
+                <h3>Diego Black</h3>
+                <p>Blackwork & geométrico</p>
+            </div>
+
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8" />
+                <h3>Laura Skins</h3>
+                <p>Fine line & minimalismo</p>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- 📍 UBICACIÓN -->
+    <section class="location">
+        <h2>Estamos en Medellín</h2>
+        <p>Zona: El Poblado - Estudio privado con cita previa</p>
+    </section>
+
+    <!-- 📱 FOOTER -->
+    <footer class="footer">
+
+        <h3>Santtoary</h3>
+
+        <p>Arte en la piel desde Medellín</p>
+
+        <div class="socials">
+            <a href="#">Instagram</a>
+            <a href="#">TikTok</a>
+            <a href="#">Facebook</a>
+        </div>
+
+        <p class="copy">© 2026 Santtoary. Todos los derechos reservados.</p>
+
+    </footer>
+
+</div>
+
+<style>
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: white;
+    }
+
+    .home {
+        width: 100%;
+    }
+
+    /* 🎠 CARRUSEL */
+    .carousel {
+        height: 90vh;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .carousel-slide {
+        position: relative;
+        height: 90vh;
+    }
+
+    .carousel-slide img {
+        width: 100%;
+        height: 90vh;
+        object-fit: cover;
+        filter: brightness(50%);
+    }
+
+    .carousel-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .carousel-text h1 {
+        font-size: 60px;
+        margin: 0;
+    }
+
+    .carousel-text p {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+
+    /* ABOUT */
+    .about {
+        padding: 80px 20px;
+        text-align: center;
+        background: #111827;
+    }
+
+    .about h2 {
+        font-size: 36px;
+    }
+
+    .about p {
+        max-width: 700px;
+        margin: auto;
+        color: #cbd5e1;
+    }
+
+    /* ARTISTS */
+    .artists {
+        padding: 80px 20px;
+        text-align: center;
+        background: #0f172a;
+    }
+
+    .artists h2 {
+        font-size: 36px;
+        margin-bottom: 40px;
+    }
+
+    .grid {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .card {
+        background: #1e293b;
+        border-radius: 15px;
+        overflow: hidden;
+        width: 250px;
+        transition: 0.3s;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    .card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .card h3 {
+        margin: 10px 0 5px 0;
+    }
+
+    .card p {
+        color: #94a3b8;
+        margin-bottom: 15px;
+    }
+
+    /* LOCATION */
+    .location {
+        padding: 60px 20px;
+        text-align: center;
+        background: #111827;
+    }
+
+    /* FOOTER */
+    .footer {
+        padding: 40px 20px;
+        text-align: center;
+        background: #020617;
+    }
+
+    .footer h3 {
+        margin: 0;
+    }
+
+    .socials {
+        margin: 15px 0;
+    }
+
+    .socials a {
+        margin: 0 10px;
+        color: #60a5fa;
+        text-decoration: none;
+    }
+
+    .copy {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+</style>
