@@ -2,6 +2,7 @@
 @using Santtoary.Shared.Entidades
 @inject HttpClient Http
 @inject NavigationManager Nav
+@using Santtoary_.WEB.Shared
 
 <h3>Registrar Nuevo Usuario</h3>
 
@@ -29,18 +30,34 @@
             <InputText type="password" class="form-control" @bind-Value="user.PasswordHash" placeholder="********" />
         </div>
 
+        <div class="mb-3">
+            <InputImg Label="Foto de Perfil" ImageSelected="ImageSelected" ImageURL="@imageUrl" />
+        </div>
+
         <button type="submit" class="btn btn-primary">Guardar</button>
         <a href="/users" class="btn btn-secondary ms-2">Cancelar</a>
     </EditForm>
 </div>
 
 @code {
-    private User user = new() { Rol = "Admin" }; // Valor por defecto
+    private User user = new() { Rol = "Admin" }; 
+    private string imageUrl = "";
+
+    
+    private void ImageSelected(string imagenBase64)
+    {
+        user.Photo = imagenBase64;
+        imageUrl = "";
+    }
 
     async Task Guardar()
     {
-        // Importante: Identity usa PasswordHash para guardar la clave
+            
         var response = await Http.PostAsJsonAsync("api/users", user);
-        if (response.IsSuccessStatusCode) Nav.NavigateTo("/users");
+        
+        if (response.IsSuccessStatusCode) 
+        {
+            Nav.NavigateTo("/users");
+        }
     }
 }
