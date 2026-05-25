@@ -6,5 +6,6 @@ namespace Santtoary.Shared.Entidades
     {
         
         public string Rol { get; set; } = null!;
+        public string Photo { get; set; } = "";
     }
 }
