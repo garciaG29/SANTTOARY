@@ -4,20 +4,28 @@
         <InputFile OnChange="OnChange" accept=".jpg,.jpeg,.png" class="form-control" maxAllowedSize="5242880" />
     </div>
 </div>
+
 <div>
-    @if (imageBase64 != null)
+    @if (!string.IsNullOrEmpty(imageBase64))
     {
         <div>
             <div style="margin: 10px">
-                <img src="data:image/jpeg;base64, @imageBase64" style="width:200px; border-radius: 10px;" />
+                <img src="data:image/png;base64,@imageBase64" style="width:200px; border-radius: 10px;" />
             </div>
         </div>
     }
-    @if (ImageURL != null)
+    else if (!string.IsNullOrEmpty(ImageURL))
     {
         <div>
             <div style="margin: 10px">
-                <img src="@ImageURL" style="width:200px; border-radius: 10px;" />
+                @if (ImageURL.StartsWith("data:image"))
+                {
+                    <img src="@ImageURL" style="width:200px; border-radius: 10px;" />
+                }
+                else
+                {
+                    <img src="data:image/png;base64,@ImageURL" style="width:200px; border-radius: 10px;" />
+                }
             </div>
         </div>
     }
@@ -34,10 +42,8 @@
         var imagenes = e.GetMultipleFiles();
         foreach (var imagen in imagenes)
         {
-           
             var arrBytes = new byte[imagen.Size];
             await imagen.OpenReadStream(maxAllowedSize: 5242880).ReadAsync(arrBytes);
-
             imageBase64 = Convert.ToBase64String(arrBytes);
             ImageURL = null;
             await ImageSelected.InvokeAsync(imageBase64);

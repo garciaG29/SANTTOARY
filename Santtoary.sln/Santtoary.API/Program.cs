@@ -35,16 +35,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Usar CORS apenas arranca el pipeline (¡Bien ubicado!)
 app.UseCors();
 
 using (var scope = app.Services.CreateScope())
 {
     var seed = scope.ServiceProvider.GetRequiredService<SeedDb>();
     await seed.SeedAsync();
-} // Ejecuta el Seed al inicio de la aplicación para poblar la base de datos con datos iniciales.
-
-// Configure the HTTP request pipeline.
+} 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -56,7 +53,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication(); // <-- AGREGADO: Necesario porque usas Identity
+app.UseAuthentication(); 
 app.UseAuthorization();
 
 app.MapControllers();

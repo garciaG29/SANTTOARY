@@ -29,6 +29,10 @@ else
             <InputText class="form-control" @bind-Value="user.Rol" />
         </div>
 
+        <div class="mb-3">
+            <Santtoary_.WEB.Shared.InputImg Label="Foto de perfil" ImageSelected="ImagenSeleccionada" ImageURL="@user.Photo" />
+        </div>
+
         <button type="submit" class="btn btn-success">Guardar Cambios</button>
         <a href="/users" class="btn btn-secondary ms-2">Cancelar</a>
     </EditForm>
@@ -43,9 +47,20 @@ else
         user = await Http.GetFromJsonAsync<User>($"api/users/{id}");
     }
 
+    private void ImagenSeleccionada(string imagenBase64)
+    {
+        if (user != null)
+        {
+            user.Photo = imagenBase64;
+        }
+    }
+
     async Task Actualizar()
     {
         var response = await Http.PutAsJsonAsync($"api/users/{id}", user);
-        if (response.IsSuccessStatusCode) Nav.NavigateTo("/users");
+        if (response.IsSuccessStatusCode)
+        {
+            Nav.NavigateTo("/users");
+        }
     }
 }
