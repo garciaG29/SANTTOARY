@@ -2,53 +2,76 @@
 @using Santtoary.Shared.Entidades
 @inject HttpClient Http
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Gestión de Usuarios (Staff)</h3>
-    <a href="/users/crear" class="btn btn-primary">+ Nuevo Usuario</a>
+<h3>Usuarios</h3>
+
+<div class="mb-3">
+    <a class="btn btn-primary" href="/users/crear">Nuevo Usuario</a>
 </div>
 
-@if (usuarios == null)
-{
-    <p>Cargando lista de usuarios...</p>
-}
-else
-{
-    <table class="table table-hover shadow-sm">
-        <thead class="table-dark">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Foto</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (usuarios == null)
+        {
             <tr>
-                <th>Usuario</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Acciones</th>
+                <td colspan="5">Cargando...</td>
             </tr>
-        </thead>
-        <tbody>
+        }
+        else
+        {
             @foreach (var user in usuarios)
             {
                 <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(user.Photo))
+                        {
+                            <img src="data:image/png;base64,@user.Photo" style="width:50px; height:50px; border-radius: 50%; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin foto</span>
+                        }
+                    </td>
                     <td>@user.UserName</td>
                     <td>@user.Email</td>
-                    <td><span class="badge bg-info text-dark">@user.Rol</span></td>
+                    <td>@user.Rol</td>
                     <td>
-                        <a href="/users/editar/@user.Id" class="btn btn-warning btn-sm">Editar</a>
-                        <button class="btn btn-danger btn-sm" @onclick="() => Eliminar(user.Id)">Eliminar</button>
+                        <a href="/users/editar/@user.Id" class="btn btn-warning">Editar</a>
+                        <button class="btn btn-danger" @onclick="@(() => EliminarUsuario(user.Id))">Eliminar</button>
                     </td>
                 </tr>
             }
-        </tbody>
-    </table>
-}
+        }
+    </tbody>
+</table>
 
 @code {
     private List<User>? usuarios;
 
-    protected override async Task OnInitializedAsync() => await Cargar();
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarUsuarios();
+    }
 
-    async Task Cargar() => usuarios = await Http.GetFromJsonAsync<List<User>>("api/users");
+    private async Task CargarUsuarios()
+    {
+        usuarios = await Http.GetFromJsonAsync<List<User>>("api/users");
+    }
 
-    async Task Eliminar(string id)
+    private async Task EliminarUsuario(string id)
     {
         var response = await Http.DeleteAsync($"api/users/{id}");
-        if (response.IsSuccessStatusCode) await Cargar();
+        if (response.IsSuccessStatusCode)
+        {
+            await CargarUsuarios();
+        }
     }
 }

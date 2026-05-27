@@ -1,7 +1,9 @@
 @page "/login"
 
 @using Microsoft.AspNetCore.Components.Forms
+@using Santtoary.Shared.DTOs
 @inject NavigationManager Nav
+@inject HttpClient Http
 
 <div class="login-page">
 
@@ -13,6 +15,7 @@
         </div>
 
         <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
 
             @if (!string.IsNullOrEmpty(mensajeError))
             {
@@ -50,43 +53,35 @@
         </div>
 
     </div>
-
 </div>
 
 @code {
-    LoginModel loginModel = new();
+    // Usamos el DTO de tu carpeta Shared
+    LoginDTO loginModel = new();
     private string? mensajeError;
 
-    private void HandleLogin()
+    private async Task HandleLogin()
     {
-        if (loginModel.Email.Equals("admin@Santtoary.com", StringComparison.OrdinalIgnoreCase) &&
-            loginModel.Password == "Admin123!")
+        // Limpiamos el mensaje de error cada vez que se intenta
+        mensajeError = null;
+
+        // Enviamos la petición al API real que configuramos
+        var response = await Http.PostAsJsonAsync("api/users/login", loginModel);
+
+        if (response.IsSuccessStatusCode)
         {
-            // ¡Ahora nos manda al panel privado!
+            // ¡El API validó el Hash correctamente!
             Nav.NavigateTo("/panel");
         }
         else
         {
+            // Si llega aquí, es porque falló (BadRequest)
             mensajeError = "Usuario o contraseña incorrectos.";
         }
-    }
-
-    public class LoginModel
-    {
-        public string Email { get; set; } = "";
-        public string Password { get; set; } = "";
-    }
-}
-
-    public class LoginModel
-    {
-        public string Email { get; set; } = "";
-        public string Password { get; set; } = "";
     }
 }
 
 <style>
-
     * {
         box-sizing: border-box;
     }
@@ -181,5 +176,4 @@
             text-decoration: none;
             font-weight: bold;
         }
-
 </style>

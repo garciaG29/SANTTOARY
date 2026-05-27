@@ -1,37 +1,47 @@
 ﻿@page "/users/crear"
+@using Santtoary.Shared.DTOs
 @using Santtoary.Shared.Entidades
 @inject HttpClient Http
 @inject NavigationManager Nav
-@using Santtoary_.WEB.Shared
+@inject IJSRuntime JS
 
 <h3>Registrar Nuevo Usuario</h3>
 
 <div class="card p-4 shadow-sm">
-    <EditForm Model="user" OnValidSubmit="Guardar">
+    <EditForm Model="userDTO" OnValidSubmit="Guardar">
         <DataAnnotationsValidator />
 
         <div class="mb-3">
             <label>Nombre de Usuario</label>
-            <InputText class="form-control" @bind-Value="user.UserName" placeholder="Ej: KevinAdmin" />
+            <InputText class="form-control" @bind-Value="userDTO.UserName" placeholder="Ej: KevinAdmin" />
+            <ValidationMessage For="@(() => userDTO.UserName)" />
         </div>
 
         <div class="mb-3">
             <label>Correo Electrónico</label>
-            <InputText class="form-control" @bind-Value="user.Email" placeholder="admin@santtoary.com" />
+            <InputText class="form-control" @bind-Value="userDTO.Email" placeholder="admin@santtoary.com" />
+            <ValidationMessage For="@(() => userDTO.Email)" />
         </div>
 
         <div class="mb-3">
             <label>Rol</label>
-            <InputText class="form-control" @bind-Value="user.Rol" placeholder="Admin o Barbero" />
+            <InputText class="form-control" @bind-Value="userDTO.Rol" />
         </div>
 
         <div class="mb-3">
             <label>Contraseña</label>
-            <InputText type="password" class="form-control" @bind-Value="user.PasswordHash" placeholder="********" />
+            <InputText type="password" class="form-control" @bind-Value="userDTO.Password" placeholder="********" />
+            <ValidationMessage For="@(() => userDTO.Password)" />
         </div>
 
         <div class="mb-3">
-            <InputImg Label="Foto de Perfil" ImageSelected="ImageSelected" ImageURL="@imageUrl" />
+            <label>Confirmar Contraseña</label>
+            <InputText type="password" class="form-control" @bind-Value="userDTO.PasswordConfirm" placeholder="********" />
+            <ValidationMessage For="@(() => userDTO.PasswordConfirm)" />
+        </div>
+
+        <div class="mb-3">
+            <Santtoary_.WEB.Shared.InputImg Label="Foto de Perfil" ImageSelected="ImageSelected" ImageURL="@imageUrl" />
         </div>
 
         <button type="submit" class="btn btn-primary">Guardar</button>
@@ -40,24 +50,27 @@
 </div>
 
 @code {
-    private User user = new() { Rol = "Admin" }; 
+    private UserDTO userDTO = new() { Rol = "Admin" };
     private string imageUrl = "";
 
-    
     private void ImageSelected(string imagenBase64)
     {
-        user.Photo = imagenBase64;
-        imageUrl = "";
+        userDTO.Photo = imagenBase64;
+        imageUrl = imagenBase64;
     }
 
     async Task Guardar()
     {
-            
-        var response = await Http.PostAsJsonAsync("api/users", user);
-        
-        if (response.IsSuccessStatusCode) 
+        var response = await Http.PostAsJsonAsync("api/users", userDTO);
+
+        if (response.IsSuccessStatusCode)
         {
             Nav.NavigateTo("/users");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            await JS.InvokeVoidAsync("alert", "Error al guardar: " + error);
         }
     }
 }
