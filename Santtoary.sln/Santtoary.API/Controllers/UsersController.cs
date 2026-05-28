@@ -1,14 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Santtoary.API.DATA;
-using Santtoary.Shared.Entidades;
-using Microsoft.AspNetCore.Identity;
 using Santtoary.Shared.DTOs;
+using Santtoary.Shared.Entidades;
 
 namespace Santtoary.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // Protege los controladores existentes
     public class UsersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
