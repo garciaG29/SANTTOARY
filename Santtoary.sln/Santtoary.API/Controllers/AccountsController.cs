@@ -8,7 +8,7 @@ using Santtoary.Shared.Entidades;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
+using Microsoft.AspNetCore.Identity;
 namespace Santtoary.API.Controllers
 {
     
@@ -18,25 +18,48 @@ namespace Santtoary.API.Controllers
         {
             private readonly IUserHelper _userHelper;
             private readonly IConfiguration _configuration;
+            private readonly RoleManager<IdentityRole> _roleManager;
 
-            public AccountsController(IUserHelper userHelper, IConfiguration configuration)
-            {
-                _userHelper = userHelper;
-                _configuration = configuration;
-            }
+            public AccountsController(
+                    IUserHelper userHelper,
+                    IConfiguration configuration,
+                    RoleManager<IdentityRole> roleManager)
+                {
+                    _userHelper = userHelper;
+                    _configuration = configuration;
+                    _roleManager = roleManager;
+}
 
             [HttpPost("CreateUser")]
-            public async Task<ActionResult> CreateUser([FromBody] UserDTO model)
-            {
-                User user = model;
-                var result = await _userHelper.AddUserAsync(user, model.Password);
-                if (result.Succeeded)
+                public async Task<ActionResult> CreateUser([FromBody] UserDTO model)
                 {
-                    await _userHelper.AddUserToRoleAsync(user, user.Rol!);
-                    return Ok(BuildToken(user));
+                    User user = model;
+
+                    // FIX: rol por defecto
+                    if (string.IsNullOrWhiteSpace(user.Rol))
+                    {
+                        user.Rol = "Cliente";
+                    }
+
+                    user.Rol = user.Rol.Trim();
+
+                    var result = await _userHelper.AddUserAsync(user, model.Password);
+
+                    if (result.Succeeded)
+                    {
+                        // SOLO asigna rol si existe
+                        var roleExists = await _roleManager.RoleExistsAsync(user.Rol);
+
+                        if (roleExists)
+                        {
+                            await _userHelper.AddUserToRoleAsync(user, user.Rol);
+                        }
+
+                        return Ok(BuildToken(user));
+                    }
+
+                    return BadRequest(result.Errors.FirstOrDefault());
                 }
-                return BadRequest(result.Errors.FirstOrDefault());
-            }
 
             [HttpPost("Login")]
             public async Task<ActionResult> Login([FromBody] LoginDTO model)

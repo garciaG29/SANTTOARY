@@ -23,6 +23,7 @@ namespace Santtoary.API.Helpers
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
         {
+            user.UserName = user.Email; 
             return await _userManager.CreateAsync(user, password);
         }
 
@@ -61,7 +62,16 @@ namespace Santtoary.API.Helpers
 
         public async Task<SignInResult> LoginAsync(LoginDTO model)
         {
-            return await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+                return SignInResult.Failed;
+
+            return await _signInManager.PasswordSignInAsync(
+                user.UserName,
+                model.Password,
+                false,
+                false);
         }
 
         public async Task LogoutAsync()

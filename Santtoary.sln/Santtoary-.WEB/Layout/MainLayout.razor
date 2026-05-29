@@ -1,10 +1,32 @@
 ﻿@inherits LayoutComponentBase
+@inject Santtoary_.WEB.Services.SessionService SessionService
+@inject NavigationManager Navigation
 
 <div class="page">
-    <NavMenu />
+
+        @if (isAuthenticated)
+        {
+            <p>Logueado</p>
+        }
+        else
+        {
+            <p>No logueado</p>
+        }
+
     <main>
         <article class="content px-4">
             @Body
         </article>
     </main>
+
 </div>
+
+@code {
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await SessionService.GetToken();
+        isAuthenticated = !string.IsNullOrEmpty(token);
+    }
+}

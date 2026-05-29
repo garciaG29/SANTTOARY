@@ -1,31 +1,37 @@
 @page "/login"
+@layout PublicLayout
 
 @using Microsoft.AspNetCore.Components.Forms
 @using Santtoary.Shared.DTOs
-@inject NavigationManager Nav
+
+@inject Santtoary_.WEB.Services.SessionService SessionService
+@inject NavigationManager Navigation
 @inject HttpClient Http
 
 <div class="login-page">
+
+    <div class="overlay"></div>
 
     <div class="login-card">
 
         <div class="login-header">
             <h1>Santtoary</h1>
-            <p>Inicia sesión en tu cuenta</p>
+            <p>Arte • Tinta • Exclusividad</p>
         </div>
 
         <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+
             <DataAnnotationsValidator />
 
             @if (!string.IsNullOrEmpty(mensajeError))
             {
-                <div style="color: #dc2626; background-color: #fee2e2; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-weight: bold;">
+                <div class="error-message">
                     @mensajeError
                 </div>
             }
 
             <div class="input-group">
-                <label>Email</label>
+                <label>Correo electrónico</label>
 
                 <InputText class="input"
                            @bind-Value="loginModel.Email"
@@ -38,7 +44,7 @@
                 <InputText type="password"
                            class="input"
                            @bind-Value="loginModel.Password"
-                           placeholder="********" />
+                           placeholder="••••••••" />
             </div>
 
             <button type="submit" class="login-btn">
@@ -56,124 +62,196 @@
 </div>
 
 @code {
-    // Usamos el DTO de tu carpeta Shared
+
     LoginDTO loginModel = new();
+
     private string? mensajeError;
 
     private async Task HandleLogin()
+{
+    mensajeError = null;
+
+    var response = await Http.PostAsJsonAsync("api/accounts/login", loginModel);
+
+    if (!response.IsSuccessStatusCode)
     {
-        // Limpiamos el mensaje de error cada vez que se intenta
-        mensajeError = null;
-
-        // Enviamos la petición al API real que configuramos
-        var response = await Http.PostAsJsonAsync("api/users/login", loginModel);
-
-        if (response.IsSuccessStatusCode)
-        {
-            // ¡El API validó el Hash correctamente!
-            Nav.NavigateTo("/panel");
-        }
-        else
-        {
-            // Si llega aquí, es porque falló (BadRequest)
-            mensajeError = "Usuario o contraseña incorrectos.";
-        }
+        mensajeError = "Usuario o contraseña incorrectos.";
+        return;
     }
+
+    var result = await response.Content.ReadFromJsonAsync<TokenDTO>();
+
+   
+    await SessionService.SaveToken(result!.Token);
+
+    
+    Navigation.NavigateTo("/clients", forceLoad: true);
+}
 }
 
+
 <style>
+
     * {
         box-sizing: border-box;
     }
 
     body {
         margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: 'Raleway', sans-serif;
+        background-color: #0a0a0a;
     }
 
     .login-page {
         min-height: 100vh;
+        width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        background: linear-gradient(135deg, #0f172a, #1e293b);
+        position: relative;
+        overflow: hidden;
+        background:
+            linear-gradient(rgba(0,0,0,0.82), rgba(0,0,0,0.88)),
+            url('https://images.unsplash.com/photo-1542727365-19732a80dcfd?q=80&w=1974&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+    }
+
+    .overlay {
+        position: absolute;
+        inset: 0;
+        backdrop-filter: blur(2px);
     }
 
     .login-card {
-        width: 380px;
-        background: white;
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 2;
+        width: 420px;
+        padding: 45px;
+        border-radius: 24px;
+        background: rgba(15, 15, 15, 0.88);
+        border: 1px solid rgba(201, 168, 76, 0.25);
+        box-shadow:
+            0 0 30px rgba(0,0,0,0.5),
+            0 0 15px rgba(201,168,76,0.12);
+        backdrop-filter: blur(12px);
     }
 
     .login-header {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 35px;
     }
 
-        .login-header h1 {
-            margin: 0;
-            font-size: 32px;
-            color: #0f172a;
-        }
+    .login-header h1 {
+        margin: 0;
+        color: #c9a84c;
+        font-size: 3rem;
+        font-family: 'Cinzel', serif;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+    }
 
-        .login-header p {
-            color: gray;
-            margin-top: 10px;
-        }
+    .login-header p {
+        margin-top: 12px;
+        color: #d1d5db;
+        font-size: 0.95rem;
+        letter-spacing: 2px;
+    }
 
     .input-group {
-        margin-bottom: 20px;
+        margin-bottom: 22px;
     }
 
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #334155;
-        }
+    .input-group label {
+        display: block;
+        margin-bottom: 10px;
+        color: #c9a84c;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
 
     .input {
         width: 100%;
-        padding: 14px;
-        border: none;
-        border-radius: 12px;
-        background: #f1f5f9;
+        padding: 15px;
+        border-radius: 14px;
+        border: 1px solid #2b2b2b;
+        background-color: #121212;
+        color: white;
         font-size: 15px;
-        outline: none;
+        transition: all 0.3s ease;
     }
 
-        .input:focus {
-            border: 2px solid #2563eb;
-        }
+    .input::placeholder {
+        color: #6b7280;
+    }
+
+    .input:focus {
+        outline: none;
+        border-color: #c9a84c;
+        box-shadow: 0 0 12px rgba(201,168,76,0.25);
+    }
 
     .login-btn {
         width: 100%;
-        padding: 14px;
+        padding: 15px;
+        margin-top: 10px;
         border: none;
-        border-radius: 12px;
-        background: #2563eb;
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #c9a84c, #a88422);
+        color: #0a0a0a;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
         cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 18px rgba(201,168,76,0.4);
+    }
+
+    .register-link {
+        margin-top: 25px;
+        text-align: center;
+        color: #9ca3af;
+        font-size: 0.95rem;
+    }
+
+    .register-link a {
+        color: #c9a84c;
+        text-decoration: none;
+        font-weight: 700;
+        margin-left: 5px;
         transition: 0.3s;
     }
 
-        .login-btn:hover {
-            background: #1d4ed8;
-        }
-
-    .register-link {
-        margin-top: 20px;
-        text-align: center;
-        color: #64748b;
+    .register-link a:hover {
+        color: #f5d67b;
     }
 
-        .register-link a {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: bold;
+    .error-message {
+        margin-bottom: 20px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(127, 29, 29, 0.35);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #fecaca;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    @@media(max-width: 500px) {
+
+        .login-card {
+            width: 92%;
+            padding: 30px;
         }
+
+        .login-header h1 {
+            font-size: 2.3rem;
+        }
+    }
+
 </style>

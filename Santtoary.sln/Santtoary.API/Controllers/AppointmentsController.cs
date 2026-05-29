@@ -9,7 +9,7 @@ namespace Santtoary.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // Protege los controladores existentes
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // Protege los controladores existentes
     public class AppointmentsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

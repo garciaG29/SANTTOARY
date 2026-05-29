@@ -1,31 +1,55 @@
 @page "/register"
-
+@layout PublicLayout
+@using System.Net.Http.Json
 @using Microsoft.AspNetCore.Components.Forms
+@using Santtoary.Shared.DTOs
 
-<div class="login-page">
+@inject HttpClient Http
+@inject NavigationManager Navigation
 
-    <div class="login-card">
+<div class="register-page">
 
-        <div class="login-header">
+    <div class="overlay"></div>
+
+    <div class="register-card">
+
+        <div class="register-header">
             <h1>Santtoary</h1>
             <p>Crea tu cuenta</p>
         </div>
 
-        <EditForm Model="@registerModel" OnValidSubmit="HandleRegister">
+        <EditForm Model="@userDTO" OnValidSubmit="HandleRegister">
+
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            @if (!string.IsNullOrEmpty(mensaje))
+            {
+                <div class="message-success">
+                    @mensaje
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="message-error">
+                    @error
+                </div>
+            }
 
             <div class="input-group">
-                <label>Nombre</label>
+                <label>Usuario</label>
 
                 <InputText class="input"
-                           @bind-Value="registerModel.Name"
-                           placeholder="Tu nombre" />
+                           @bind-Value="userDTO.UserName"
+                           placeholder="Tu usuario" />
             </div>
 
             <div class="input-group">
-                <label>Email</label>
+                <label>Correo electrónico</label>
 
                 <InputText class="input"
-                           @bind-Value="registerModel.Email"
+                           @bind-Value="userDTO.Email"
                            placeholder="correo@email.com" />
             </div>
 
@@ -34,8 +58,8 @@
 
                 <InputText type="password"
                            class="input"
-                           @bind-Value="registerModel.Password"
-                           placeholder="********" />
+                           @bind-Value="userDTO.Password"
+                           placeholder="••••••••" />
             </div>
 
             <div class="input-group">
@@ -43,41 +67,56 @@
 
                 <InputText type="password"
                            class="input"
-                           @bind-Value="registerModel.ConfirmPassword"
-                           placeholder="********" />
+                           @bind-Value="userDTO.PasswordConfirm"
+                           placeholder="••••••••" />
             </div>
 
-            <button type="submit" class="login-btn">
+            <button type="submit" class="register-btn">
                 Crear cuenta
             </button>
 
         </EditForm>
 
-        <div class="register-link">
+        <div class="login-link">
             ¿Ya tienes cuenta?
             <a href="/login">Iniciar sesión</a>
         </div>
 
     </div>
-
 </div>
 
 @code {
 
-    RegisterModel registerModel = new();
+    private UserDTO userDTO = new();
 
-    private void HandleRegister()
-    {
-        Console.WriteLine("Registro funcionando");
-    }
+    private string? mensaje;
+    private string? error;
 
-    public class RegisterModel
+    private async Task HandleRegister()
+{
+    mensaje = null;
+    error = null;
+
+    // 🔥 AQUÍ VA
+    userDTO.Rol = "Cliente";
+
+    var response = await Http.PostAsJsonAsync(
+        "api/accounts/CreateUser",
+        userDTO
+    );
+
+    if (response.IsSuccessStatusCode)
     {
-        public string Name { get; set; } = "";
-        public string Email { get; set; } = "";
-        public string Password { get; set; } = "";
-        public string ConfirmPassword { get; set; } = "";
+        mensaje = "Usuario registrado correctamente";
+        Navigation.NavigateTo("/login");
     }
+    else
+    {
+        var resp = await response.Content.ReadAsStringAsync();
+        error = "No fue posible registrar el usuario: " + resp;
+    }
+}
+}
 }
 
 <style>
@@ -88,93 +127,171 @@
 
     body {
         margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: 'Raleway', sans-serif;
+        background-color: #0a0a0a;
     }
 
-    .login-page {
+    .register-page {
         min-height: 100vh;
+        width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        background: linear-gradient(135deg, #0f172a, #1e293b);
+        position: relative;
+        overflow: hidden;
+        background:
+            linear-gradient(rgba(0,0,0,0.82), rgba(0,0,0,0.88)),
+            url('https://images.unsplash.com/photo-1542727365-19732a80dcfd?q=80&w=1974&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
     }
 
-    .login-card {
-        width: 380px;
-        background: white;
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    .overlay {
+        position: absolute;
+        inset: 0;
+        backdrop-filter: blur(2px);
     }
 
-    .login-header {
+    .register-card {
+        position: relative;
+        z-index: 2;
+        width: 430px;
+        padding: 45px;
+        border-radius: 24px;
+        background: rgba(15, 15, 15, 0.88);
+        border: 1px solid rgba(201, 168, 76, 0.25);
+        box-shadow:
+            0 0 30px rgba(0,0,0,0.5),
+            0 0 15px rgba(201,168,76,0.12);
+        backdrop-filter: blur(12px);
+    }
+
+    .register-header {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 35px;
     }
 
-        .login-header h1 {
-            margin: 0;
-            font-size: 32px;
-            color: #0f172a;
-        }
+    .register-header h1 {
+        margin: 0;
+        color: #c9a84c;
+        font-size: 3rem;
+        font-family: 'Cinzel', serif;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+    }
 
-        .login-header p {
-            color: gray;
-            margin-top: 10px;
-        }
+    .register-header p {
+        margin-top: 12px;
+        color: #d1d5db;
+        font-size: 0.95rem;
+        letter-spacing: 2px;
+    }
 
     .input-group {
-        margin-bottom: 20px;
+        margin-bottom: 22px;
     }
 
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #334155;
-        }
+    .input-group label {
+        display: block;
+        margin-bottom: 10px;
+        color: #c9a84c;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
 
     .input {
         width: 100%;
-        padding: 14px;
-        border: none;
-        border-radius: 12px;
-        background: #f1f5f9;
+        padding: 15px;
+        border-radius: 14px;
+        border: 1px solid #2b2b2b;
+        background-color: #121212;
+        color: white;
         font-size: 15px;
-        outline: none;
+        transition: all 0.3s ease;
     }
 
-        .input:focus {
-            border: 2px solid #2563eb;
-        }
+    .input::placeholder {
+        color: #6b7280;
+    }
 
-    .login-btn {
+    .input:focus {
+        outline: none;
+        border-color: #c9a84c;
+        box-shadow: 0 0 12px rgba(201,168,76,0.25);
+    }
+
+    .register-btn {
         width: 100%;
-        padding: 14px;
+        padding: 15px;
+        margin-top: 10px;
         border: none;
-        border-radius: 12px;
-        background: #2563eb;
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #c9a84c, #a88422);
+        color: #0a0a0a;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
         cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .register-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 18px rgba(201,168,76,0.4);
+    }
+
+    .login-link {
+        margin-top: 25px;
+        text-align: center;
+        color: #9ca3af;
+        font-size: 0.95rem;
+    }
+
+    .login-link a {
+        color: #c9a84c;
+        text-decoration: none;
+        font-weight: 700;
+        margin-left: 5px;
         transition: 0.3s;
     }
 
-        .login-btn:hover {
-            background: #1d4ed8;
-        }
-
-    .register-link {
-        margin-top: 20px;
-        text-align: center;
-        color: #64748b;
+    .login-link a:hover {
+        color: #f5d67b;
     }
 
-        .register-link a {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: bold;
+    .message-success {
+        margin-bottom: 20px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(22, 101, 52, 0.35);
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        color: #bbf7d0;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .message-error {
+        margin-bottom: 20px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(127, 29, 29, 0.35);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #fecaca;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    @@media(max-width: 500px) {
+
+        .register-card {
+            width: 92%;
+            padding: 30px;
         }
+
+        .register-header h1 {
+            font-size: 2.3rem;
+        }
+    }
 
 </style>
