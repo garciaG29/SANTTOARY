@@ -1,5 +1,7 @@
 ﻿@page "/"
+@layout PublicLayout
 @inject NavigationManager Nav
+@inject Santtoary_.WEB.Services.SessionService SessionService
 
 <div class="home">
 
@@ -39,14 +41,14 @@
                 </div>
             </div>
             <div class="artist-card">
-                <img src="img1.png" alt="Mike Steel" />
+                <img src="/img1.png" alt="Mike Steel" />
                 <div class="artist-info">
                     <h3>Mike Steel</h3>
                     <p>Realismo / Cortes clásicos</p>
                 </div>
             </div>
             <div class="artist-card">
-                <img src="img2.png" alt="Jhon Ink" />
+                <img src="/img2.png" alt="Jhon Ink" />
                 <div class="artist-info">
                     <h3>Jhon Ink</h3>
                     <p>Fine line / Barber moderno</p>
@@ -77,6 +79,19 @@
 </div>
 
 @code {
+    private bool _isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await SessionService.GetToken();
+        _isAuthenticated = !string.IsNullOrEmpty(token);
+
+        if (_isAuthenticated)
+        {
+            Nav.NavigateTo("/panel", forceLoad: false);
+        }
+    }
+
     private void GoLogin() => Nav.NavigateTo("/login");
     private void GoRegister() => Nav.NavigateTo("/register");
 }

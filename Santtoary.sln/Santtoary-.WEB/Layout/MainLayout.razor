@@ -1,32 +1,56 @@
 ﻿@inherits LayoutComponentBase
 @inject Santtoary_.WEB.Services.SessionService SessionService
 @inject NavigationManager Navigation
+@implements IDisposable
 
-<div class="page">
-
-        @if (isAuthenticated)
-        {
-            <p>Logueado</p>
-        }
-        else
-        {
-            <p>No logueado</p>
-        }
-
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-
-</div>
+@if (_checked)
+{
+    @if (_isAuthenticated)
+    {
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
+            <main>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
+        </div>
+    }
+}
 
 @code {
-    private bool isAuthenticated;
+    private bool _isAuthenticated;
+    private bool _checked;
 
     protected override async Task OnInitializedAsync()
     {
+        SessionService.OnChange += OnSessionChanged;
+        await CheckAuth();
+    }
+
+    private async Task CheckAuth()
+    {
         var token = await SessionService.GetToken();
-        isAuthenticated = !string.IsNullOrEmpty(token);
+        _isAuthenticated = !string.IsNullOrEmpty(token);
+        _checked = true;
+
+        if (!_isAuthenticated)
+        {
+            Navigation.NavigateTo("/", forceLoad: false);
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnSessionChanged()
+    {
+        _ = CheckAuth();
+    }
+
+    public void Dispose()
+    {
+        SessionService.OnChange -= OnSessionChanged;
     }
 }

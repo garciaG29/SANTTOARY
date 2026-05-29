@@ -62,14 +62,22 @@ var app = builder.Build();
 
 app.UseCors();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    if (dbContext.Database.IsRelational())
+    using (var scope = app.Services.CreateScope())
     {
-        dbContext.Database.Migrate();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        if (dbContext.Database.IsRelational())
+        {
+            try
+            {
+                dbContext.Database.Migrate();
+            }
+            catch
+            {
+                // ignorar error de DB por ahora
+            }
+        }
     }
-}
 
 using (var scope = app.Services.CreateScope())
 {
