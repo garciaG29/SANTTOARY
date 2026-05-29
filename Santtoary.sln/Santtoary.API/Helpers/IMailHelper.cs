@@ -1,6 +1,9 @@
-﻿namespace Santtoary.API.Helpers
+﻿using Santtoary.Shared.Responses;
+
+namespace Santtoary.API.Helpers
 {
-    public class IMailHelper
+    public interface IMailHelper
     {
+        Response SendMail(string toName, string toEmail, string subject, string body);
     }
 }
